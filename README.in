@@ -1,0 +1,65 @@
+WHAT IS DB2TCL?
+===============
+
+DB2TCL is an extension to the Tool Command Language (TCL) that
+provides high-level access to a IBM UDB DB2 database server. 
+
+DB2TCL features:
+-- supports multiple connections to one or more database servers,
+-- supports all IBM DB2 statements,
+-- returns SELECT query results either as TCL lists, or iterates
+   a script over the resulting rows,
+
+
+WHERE TO GET DB2TCL
+===================
+
+http://www.appliedtech.org/db2tcl
+http://www.busin.chel.su/db2tcl
+
+INSTALLATION
+============
+
+Quick install instructions:
+
+- Untar @PACKAGE@ tarball
+$ tar xzvf @PACKAGE@-@VERSION@.tar.gz
+- Change dir to @PACKAGE@-@VERSION@
+$ cd @PACKAGE@-@VERSION@
+- run configure script
+$ ./configure
+- run make
+$ make
+- ckeck
+$ make check
+- to install switch to root
+$ su -c 'make install'
+
+REQUIREMENTS
+============
+
+Since DB2TCL is an extension to Tcl, you should already have Tcl, or be
+prepared to get it via FTP:
+
+    ftp://ftp.scriptics.com/pub/tcl8_0
+
+If you want compile Tk interface for IBM DB2 you must have 
+Tk library also. 
+
+Of course, you must also have access to a IBM DB2 system. Additionally,
+you must have the IBM DB2 SDK package that provides header files and
+object libraries. See IBM DB2 homepage:
+
+    http://www-3.ibm.com/software/data/db2/udb/
+
+DB2TCL supports building a dynamic load library on systems that support
+dynamic loading.  If you build static libraries and executables, 
+I recommend building with Extended Tcl.
+
+NOTE
+====
+
+DB2TCL tested only on Linux systems!
+
+Sergey N. Belinsky
+sergey_be@mail.ru
