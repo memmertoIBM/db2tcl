@@ -8,13 +8,13 @@ DB2TCL features:
 -- supports multiple connections to one or more database servers,
 -- supports all IBM DB2 statements,
 -- returns SELECT query results either as TCL lists, or iterates
-   a script over the resulting rows.
+   a script over the resulting rows,
+-- supports database transactions.
 
+WHERE TO GET DB2TCL?
+====================
 
-WHERE TO GET DB2TCL
-===================
-
-http://db2tcl.sourceforge.net/
+http://sourceforge.net/projects/db2tcl/
 
 
 INSTALLATION
@@ -42,7 +42,7 @@ REQUIREMENTS
 Since DB2TCL is an extension to Tcl, you should already have Tcl, or be
 prepared to get it via FTP:
 
-    ftp://ftp.scriptics.com/pub/tcl8_0
+    ftp://ftp.scriptics.com/pub/tcl/
 
 If you want compile Tk interface for IBM DB2 you must have 
 Tk library also. 
@@ -113,7 +113,7 @@ db2_rollback_transaction db_handle
 NOTE
 ====
 
-DB2TCL tested only on Linux systems!
+DB2TCL tested only on Linux 2.4.x systems and Solaris 8!
 
 Sergey N. Belinsky
 sergeybe@users.sourceforge.net

@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using tclsh \
-exec tclsh "$0" "$@"
+exec tcl "$0" "$@"
 
 load "../src/.libs/libdb2tcl.so"
 

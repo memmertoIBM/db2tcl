@@ -11,6 +11,7 @@ noinst_HEADERS = db2tclcmds.h db2tcl.h
 
 
 lib_LTLIBRARIES = libdb2tcl.la
+noinst_LTLIBRARIES = libdb2tcl.la
 
 libdb2tcl_la_SOURCES = db2tclcmds.c db2tcl.c
 libdb2tcl_la_LDFLAGS = -version-info 0:1:0

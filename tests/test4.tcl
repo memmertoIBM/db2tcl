@@ -1,6 +1,6 @@
 #!/bin/sh
 # the next line restarts using tclsh \
-exec tclsh "$0" "$@"
+exec tcl "$0" "$@"
 
 #lappend auto_path /usr/lib/tcl_local $env(RDS_TCL_SCRIPTS)/lib
 
