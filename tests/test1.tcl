@@ -29,7 +29,64 @@ db2_exec $conn1 "INSERT INTO db2tcl VALUES (2,'Gour')"
 db2_exec $conn1 "INSERT INTO db2tcl VALUES (3,'Manger')" 
 db2_exec $conn1 "INSERT INTO db2tcl VALUES (4,'Slava')" 
 
+puts "Query table DB2TCL by operator select... "
+
+set res [db2_select $conn1 "SELECT * FROM db2tcl" ]
+
+puts "Fetch all rows from query result..."
+
+while {[set line [db2_fetchrow $res]] != ""} {
+  puts "$line"
+}
+
+# Test rollback
+puts "Begin transaction..."
+
+db2_begin_transaction $conn1
+
+puts "Insert data into table db2tcl..."
+
+db2_exec $conn1 "INSERT INTO db2tcl VALUES (5,'Pupkin')" 
+db2_exec $conn1 "INSERT INTO db2tcl VALUES (6,'Dudkin')" 
+
+puts "Rollback transaction..."
+
+db2_rollback_transaction $conn1
+
+puts "Query table DB2TCL by operator select... "
+
+set res [db2_select $conn1 "SELECT * FROM db2tcl" ]
+
+puts "Fetch all rows from query result..."
+
+while {[set line [db2_fetchrow $res]] != ""} {
+  puts "$line"
+}
+
+# Test commit
+puts "Begin transaction..."
+
+db2_begin_transaction $conn1
+
+puts "Insert data into table db2tcl..."
+
+db2_exec $conn1 "INSERT INTO db2tcl VALUES (5,'Pupkin')" 
+db2_exec $conn1 "INSERT INTO db2tcl VALUES (6,'Dudkin')" 
+
+puts "Commit transaction..."
+
+db2_commit_transaction $conn1
+
+puts "Query table DB2TCL by operator select... "
+
+set res [db2_select $conn1 "SELECT * FROM db2tcl" ]
+
+puts "Fetch all rows from query result..."
+
+while {[set line [db2_fetchrow $res]] != ""} {
+  puts "$line"
+}
+
 puts "Disconnect from database SAMPLE..."
 
 db2_disconnect $conn1
-
