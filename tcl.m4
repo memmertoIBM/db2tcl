@@ -275,8 +275,6 @@ AC_DEFUN(SC_LOAD_TKCONFIG, [
         AC_MSG_RESULT([could not find $TK_BIN_DIR/tkConfig.sh])
     fi
 
-
-    AC_MSG_RESULT([---------------------------- $TCL_EXEC_PREFIX ============])
     AC_SUBST(TK_EXEC_PREFIX)
     AC_SUBST(TK_LIB_SPEC)
     AC_SUBST(TK_BIN_DIR)
