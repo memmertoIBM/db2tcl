@@ -7,7 +7,7 @@
 static SQLHANDLE henv = SQL_NULL_HANDLE;
 static int num_connect = 0;
 
-int Db2DelConnection (ClientData cData, Tcl_Interp * interp)
+int Db2CloseConnection (ClientData cData, Tcl_Interp * interp)
 {
     Db2Connection *conn;
 
@@ -65,7 +65,7 @@ int Db2OutputProc (ClientData cData, char *buf, int bufSize,
 Tcl_ChannelType Db2_ConnType = {
     "db2sql",			/* channel type */
     NULL,
-    Db2DelConnection,		/* closeproc */
+    Db2CloseConnection,		/* closeproc */
     Db2InputProc,		/* inputproc */
     Db2OutputProc,		/* outputproc */
 };
@@ -174,7 +174,7 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 /*
    TCL syntax:
 
-   db2_connect db_handle
+   db2_disconnect db_handle
 
    Return database handle
 */
@@ -254,7 +254,7 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 	return TCL_ERROR;
     }
 
-    conn->rc = SQLExecDirect (hstmt, argv[2], SQL_NTS);
+    conn->rc = SQLExecDirect (hstmt, (SQLCHAR *) argv[2], SQL_NTS);
     if (conn->rc != SQL_SUCCESS)
     {
 	SQLError (henv, conn->hdbc, hstmt,
@@ -329,7 +329,7 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 	return TCL_ERROR;
     }
 
-    conn->rc = SQLExecDirect (hstmt, argv[2], SQL_NTS);
+    conn->rc = SQLExecDirect (hstmt, (SQLCHAR *) argv[2], SQL_NTS);
     if (conn->rc != SQL_SUCCESS)
     {
 	SQLError (henv, conn->hdbc, hstmt,
@@ -437,7 +437,7 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 			       num_col, SQL_C_CHAR, buff, size_buff, NULL);
 
 	Tcl_AppendElement (interp, (char *) buff);
-	//Tcl_AppendResult(interp, (char *)buff, " ", 0);
+	/* Tcl_AppendResult(interp, (char *)buff, " ", 0); */
     }
     else
     {
@@ -447,7 +447,7 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 				   i + 1, SQL_C_CHAR, buff, size_buff, NULL);
 
 	    Tcl_AppendElement (interp, (char *) buff);
-	    //Tcl_AppendResult(interp, (char *)buff, " ", 0);
+	    /* Tcl_AppendResult(interp, (char *)buff, " ", 0); */
 	}
     }
 
@@ -459,9 +459,7 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 /*
     TCL syntax: 
 
-    db2_exec handle sql_code
-
-    Return database handle
+    db2_finish handle
 */
 
 int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
@@ -471,7 +469,12 @@ int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
     char id[MAX_ID_LENGTH + 1];
     SQLHANDLE hdbc, hstmt;
     short num_fields;
-    char *p;
+
+    if (argc != 2)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	return TCL_ERROR;
+    }
 
     if (sscanf (argv[1], "db2sql%d.%d.%d", &hdbc, &hstmt, &num_fields) < 3)
     {
@@ -536,6 +539,176 @@ int Db2_getnumrows (ClientData cData, Tcl_Interp * interp, int argc,
 }
 
 /*
+    TCL syntax: 
+
+    db2_begin_transaction db_handle
+
+*/
+
+int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+{
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    SQLHANDLE hdbc, hstmt;
+
+    if (argc != 2 || argv[1] == NULL)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	return TCL_ERROR;
+    }
+
+    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+    conn->rc = SQLSetConnectAttr (conn->hdbc,
+                                  SQL_ATTR_AUTOCOMMIT,
+                                  (SQLPOINTER)SQL_AUTOCOMMIT_OFF,
+                                  SQL_NTS);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, 0);
+	return TCL_ERROR;
+    }
+
+    return TCL_OK;
+}
+
+/*
+    TCL syntax: 
+
+    db2_commit_transaction db_handle
+
+*/
+
+int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+{
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    SQLHANDLE hdbc, hstmt;
+
+    if (argc != 2 || argv[1] == NULL)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	return TCL_ERROR;
+    }
+
+    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+    conn->rc = SQLTransact (henv, conn->hdbc, SQL_COMMIT);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, 0);
+	return TCL_ERROR;
+    }
+
+    conn->rc = SQLSetConnectAttr (conn->hdbc,
+                                  SQL_ATTR_AUTOCOMMIT,
+                                  (SQLPOINTER)SQL_AUTOCOMMIT_ON,
+                                  SQL_NTS);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, 0);
+	return TCL_ERROR;
+    }
+
+    return TCL_OK;
+}
+
+/*
+    TCL syntax: 
+
+    db2_rollback_transaction db_handle
+
+*/
+
+int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+{
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    SQLHANDLE hdbc, hstmt;
+
+    if (argc != 2 || argv[1] == NULL)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	return TCL_ERROR;
+    }
+
+    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+    conn->rc = SQLTransact (henv, conn->hdbc, SQL_ROLLBACK);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, 0);
+	return TCL_ERROR;
+    }
+
+    conn->rc = SQLSetConnectAttr (conn->hdbc,
+                                  SQL_ATTR_AUTOCOMMIT,
+                                  (SQLPOINTER)SQL_AUTOCOMMIT_ON,
+                                  SQL_NTS);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, 0);
+	return TCL_ERROR;
+    }
+
+    return TCL_OK;
+}
+
+/*
     db2tcl super command
 */
 
@@ -571,16 +744,30 @@ int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
     {
 	Db2_disconnect (cData, interp, argc - 1, argv + 1);
     }
+    else if (strncmp (argv[1], "begin_transaction", 17) == 0)
+    {
+	Db2_begin_transaction (cData, interp, argc - 1, argv + 1);
+    }
+    else if (strncmp (argv[1], "commit_transaction", 18) == 0)
+    {
+	Db2_commit_transaction (cData, interp, argc - 1, argv + 1);
+    }
+    else if (strncmp (argv[1], "rollback_transaction", 20) == 0)
+    {
+	Db2_rollback_transaction (cData, interp, argc - 1, argv + 1);
+    }
     return TCL_OK;
 }
+
+/* This function only for test */
 
 int Db2_test (ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj *CONST objv[])
 {
     int i;
-    printf("db2_test\n");
-    for(i=0; i < objc; i++)
+
+    for(i = 0; i < objc; i++)
     {
-	printf(" objv[%d] = %s\n", i, Tcl_GetStringFromObj(objv[i], NULL));
+	printf("objv[%d] = %s\n", i, Tcl_GetStringFromObj(objv[i], NULL));
     }
     return 0;
 }

@@ -69,7 +69,8 @@ AC_DEFUN(SC_PATH_TCLCONFIG, [
 	    # check in a few common install locations
 	    if test x"${ac_cv_c_tclconfig}" = x ; then
 		for i in `ls -d ${prefix}/lib 2>/dev/null` \
-			`ls -d /usr/local/lib 2>/dev/null` ; do
+			`ls -d /usr/local/lib 2>/dev/null` \
+			`ls -d /usr/lib 2>/dev/null` ; do
 		    if test -f "$i/tclConfig.sh" ; then
 			ac_cv_c_tclconfig=`(cd $i; pwd)`
 			break
@@ -161,7 +162,8 @@ AC_DEFUN(SC_PATH_TKCONFIG, [
 	    # check in a few common install locations
 	    if test x"${ac_cv_c_tkconfig}" = x ; then
 		for i in `ls -d ${prefix}/lib 2>/dev/null` \
-			`ls -d /usr/local/lib 2>/dev/null` ; do
+			`ls -d /usr/local/lib 2>/dev/null` \
+			`ls -d /usr/lib 2>/dev/null` ; do
 		    if test -f "$i/tkConfig.sh" ; then
 			ac_cv_c_tkconfig=`(cd $i; pwd)`
 			break
@@ -263,10 +265,10 @@ AC_DEFUN(SC_LOAD_TCLCONFIG, [
 #------------------------------------------------------------------------
 
 AC_DEFUN(SC_LOAD_TKCONFIG, [
-    AC_MSG_CHECKING([for existence of $TCLCONFIG])
+    AC_MSG_CHECKING([for existence of $TK_BIN_DIR/tkConfig.sh])
 
     if test -f "$TK_BIN_DIR/tkConfig.sh" ; then
-        AC_MSG_CHECKING([loading $TK_BIN_DIR/tkConfig.sh])
+        AC_MSG_RESULT([loading])
 	. $TK_BIN_DIR/tkConfig.sh
     else
         AC_MSG_RESULT([could not find $TK_BIN_DIR/tkConfig.sh])

@@ -92,6 +92,23 @@ extern int Db2_getnumrow(
 		int argc, 
 		char *argv[]);
 
+extern int Db2_begin_transaction(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		char *argv[]);
+
+extern int Db2_commit_transaction(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		char *argv[]);
+
+extern int Db2_rollback_transaction(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		char *argv[]);
 
 extern int Db2_db2(
 		ClientData cData, 
@@ -100,7 +117,7 @@ extern int Db2_db2(
 		char *argv[]);
 
 extern int Db2_test (ClientData clientData,
-                         Tcl_Interp * interp,
-                         int objc, Tcl_Obj * CONST objv[]);
+                     Tcl_Interp * interp,
+                     int objc, Tcl_Obj * CONST objv[]);
 
 #endif	 /* DB2TCLCMDS_H */

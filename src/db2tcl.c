@@ -28,6 +28,15 @@ int Db_Init (Tcl_Interp * interp)
     Tcl_CreateCommand (interp, "db2_getnumrows", Db2_finish,
 		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
+    Tcl_CreateCommand (interp, "db2_begin_transaction", Db2_begin_transaction,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateCommand (interp, "db2_commit_transaction", Db2_commit_transaction,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateCommand (interp, "db2_rollback_transaction", Db2_rollback_transaction,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
     Tcl_CreateCommand (interp, "db2", Db2_db2,
 		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 

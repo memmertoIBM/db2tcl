@@ -4,28 +4,32 @@ AC_CONFIG_SRCDIR([config.h.in])
 AM_INIT_AUTOMAKE(db2tcl, 0.0.2, sergeybe@users.sourceforge.net)
 AM_CONFIG_HEADER([config.h])
 
-dnl Checks for programs.
-AC_PROG_MAKE_SET
-AM_SANITY_CHECK
-AC_PROG_CC
-AC_PROG_CPP
-AC_PROG_INSTALL
+AM_MAINTAINER_MODE
 
-AC_OBJEXT
-AC_EXEEXT
+dnl Checks for programs.
+AC_PROG_CC
+AC_PROG_INSTALL
+AC_PROG_LN_S
+AC_ISC_POSIX
 
 dnl Checks for libraries.
+AM_DISABLE_STATIC
 AC_LIBTOOL_DLOPEN
 AM_PROG_LIBTOOL
 AC_SUBST(LIBTOOL_DEPS)
-AM_WITH_DMALLOC
-WEST_WITH_IBM_DB2
 
 dnl Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS(string.h sqlcli.h)
 
 dnl Checks for typedefs, structures, and compiler characteristics.
+
+SC_PATH_TCLCONFIG
+SC_LOAD_TCLCONFIG
+
+SC_PATH_TKCONFIG
+SC_LOAD_TKCONFIG
+
+AC_WITH_IBM_DB2
 
 dnl Checks for library functions.
 AC_SEARCH_LIBS(sqlurlog_api, db2 db2e, , 

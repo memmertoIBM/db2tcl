@@ -35,6 +35,7 @@ $ make check
 - to install switch to root
 $ su -c 'make install'
 
+
 REQUIREMENTS
 ============
 
@@ -55,6 +56,7 @@ object libraries. See IBM DB2 homepage:
 DB2TCL supports building a dynamic load library on systems that support
 dynamic loading.  If you build static libraries and executables, 
 I recommend building with Extended Tcl.
+
 
 BRIEF COMMAND REFERENCE
 =======================
@@ -95,6 +97,19 @@ db2_getnumrow statement_handle
 
     Return number column in statement.
 
+db2_begin_transaction db_handle
+
+    Start transaction
+
+db2_commit_transaction db_handle
+
+    Commit transaction
+
+db2_rollback_transaction db_handle
+
+    Rollback transaction
+    
+    
 NOTE
 ====
 

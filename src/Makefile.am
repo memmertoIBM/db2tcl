@@ -14,3 +14,7 @@ index:
 
 check:
 	cd ../tests && $(MAKE) check
+
+LIBTOOL_DEPS = @LIBTOOL_DEPS@
+libtool: $(LIBTOOL_DEPS)
+	$(SHELL) ./config.status --recheck

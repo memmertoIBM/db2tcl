@@ -53,9 +53,9 @@ $ACLOCAL $ACLOCAL_FLAGS
 ($AUTOHEADER --version)  < /dev/null > /dev/null 2>&1 && $AUTOHEADER
 
 # run libtoolize ...
-libtoolize --force
+libtoolize --force --copy
 
-$AUTOMAKE -a $am_opt
+$AUTOMAKE $am_opt --add-missing --copy
 $AUTOHEADER
 $AUTOCONF
 cd $ORIGDIR

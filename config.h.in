@@ -12,9 +12,6 @@
 /* Define to 1 if you have the <memory.h> header file. */
 #undef HAVE_MEMORY_H
 
-/* Define to 1 if you have the <sqlcli.h> header file. */
-#undef HAVE_SQLCLI_H
-
 /* Define to 1 if you have the <stdint.h> header file. */
 #undef HAVE_STDINT_H
 
@@ -53,6 +50,3 @@
 
 /* Define to 1 if you have the ANSI C header files. */
 #undef STDC_HEADERS
-
-/* Define if using the dmalloc debugging malloc package */
-#undef WITH_DMALLOC
