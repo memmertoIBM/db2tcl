@@ -1,8 +1,22 @@
-? Makefile
-? config.cache
-? config.h
-? config.log
-? config.status
-? libtool
-? mkIndex.tcl
-? stamp-h
+autom4te*.cache
+config.cache
+config.guess 
+config.h
+config.in.h
+config.log
+config.status
+config.sub 
+configure 
+db2tcl.spec 
+depcomp 
+install-sh 
+libtool
+ltconfig 
+ltmain.sh 
+Makefile
+Makefile.in
+missing 
+mkIndex.tcl
+mkinstalldirs 
+stamp-h
+stamp-h.in 
