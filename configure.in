@@ -1,8 +1,9 @@
 dnl Process this file with autoconf to produce a configure script.
-AC_INIT(src/db2tclsh.c)
+AC_INIT(db2tcl, 0.0.2, sergeybe@users.sourceforge.net)
 AC_REVISION($Id$)
-AM_INIT_AUTOMAKE(db2tcl, 0.0.2)
-AM_CONFIG_HEADER(config.h)
+AC_CONFIG_SRCDIR([config.h.in])
+AM_INIT_AUTOMAKE(db2tcl, 0.0.2, sergeybe@users.sourceforge.net)
+AM_CONFIG_HEADER([config.h])
 
 dnl Checks for programs.
 AC_PROG_MAKE_SET
@@ -10,8 +11,7 @@ AM_SANITY_CHECK
 AC_PROG_CC
 AC_PROG_CPP
 AC_PROG_INSTALL
-AC_CYGWIN
-AC_MINGW32
+
 AC_OBJEXT
 AC_EXEEXT
 
@@ -38,4 +38,5 @@ AC_SEARCH_LIBS(Tk_Init, tk8.3 tk8.2 tk8.1 tk8.0 tk, ,
 
 AC_SUBST(VERSION)
 
-AC_OUTPUT([Makefile src/Makefile doc/Makefile tests/Makefile mkIndex.tcl db2tcl.spec])
+AC_CONFIG_FILES([Makefile src/Makefile doc/Makefile tests/Makefile mkIndex.tcl db2tcl.spec])
+AC_OUTPUT

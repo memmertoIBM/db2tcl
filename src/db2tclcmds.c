@@ -96,12 +96,12 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 
     strncpy (conn->database, argv[1], SQL_MAX_DSN_LENGTH);
 
-    if (argv[2])
+    if (argc > 2  && argv[2])
     {
 	strncpy (conn->user, argv[2], MAX_UID_LENGTH);
     }
 
-    if (argv[3])
+    if (argc > 3 && argv[3])
     {
 	strncpy (conn->password, argv[3], MAX_PWD_LENGTH);
     }
@@ -226,7 +226,7 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
     SQLHANDLE hstmt;
     char buff[MAX_ID_LENGTH + 1];
 
-    if (argc != 2)
+    if (argc != 3)
     {
 	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
 	return TCL_ERROR;
@@ -563,7 +563,7 @@ int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
     {
 	Db2_exec (cData, interp, argc - 1, argv + 1);
     }
-    if (strncmp (argv[1], "connect", 8) == 0)
+    if (strncmp (argv[1], "connect", 7) == 0)
     {
 	Db2_connect (cData, interp, argc - 1, argv + 1);
     }
