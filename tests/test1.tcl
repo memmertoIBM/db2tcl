@@ -14,9 +14,9 @@ set conn1 [db2_connect SAMPLE]
 
 puts "Drop table db2tcl if exist..."
 
-catch [ 
-    db2_exec $conn1 "DROP TABLE db2tcl"
-]
+if { [catch { db2_exec $conn1 "DROP TABLE db2tcl"}] } {
+      puts stderr "Could not drop table db2tcl.\n"
+}
 
 puts "Create table db2tcl..."
 
