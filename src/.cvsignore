@@ -1,0 +1,8 @@
+Makefile
+.deps
+.libs
+db2tcl.lo
+db2tclcmds.lo
+db2tclsh
+db2wish
+libdb2tcl.la

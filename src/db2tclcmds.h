@@ -6,7 +6,11 @@
 #include <tcl.h>
 #include <sqlcli.h>
 
-/* Registered Tcl functions */
+#define MAX_UID_LENGTH 18
+#define MAX_PWD_LENGTH 30
+#define MAX_STMT_LEN   255
+#define MAX_COLUMNS    255
+#define MAX_ID_LENGTH  255
 
 typedef struct FieldBuffer { 
   /* description of the field */
@@ -28,10 +32,11 @@ typedef struct FieldBuffer {
 
 typedef struct Db2Connection
 {
-    char id[18];
-    char database[18];
-    char user[18];
-    char password[18];
+    char id[MAX_ID_LENGTH + 1];
+
+    char database[SQL_MAX_DSN_LENGTH + 1];
+    char user[MAX_UID_LENGTH + 1];
+    char password[MAX_PWD_LENGTH + 1];
 
     SQLHANDLE hdbc;
     
@@ -42,6 +47,8 @@ typedef struct Db2Connection
     SQLRETURN rc;
 
 } Db2Connection;
+
+/* Registered Tcl functions */
 
 extern int Db2_connect(
 		ClientData cData, 
@@ -78,5 +85,22 @@ extern int Db2_fetchrow(
 		Tcl_Interp *interp, 
 		int argc, 
 		char *argv[]);
+
+extern int Db2_getnumrow(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		char *argv[]);
+
+
+extern int Db2_db2(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		char *argv[]);
+
+extern int Db2_test (ClientData clientData,
+                         Tcl_Interp * interp,
+                         int objc, Tcl_Obj * CONST objv[]);
 
 #endif	 /* DB2TCLCMDS_H */

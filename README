@@ -2,30 +2,30 @@ WHAT IS DB2TCL?
 ===============
 
 DB2TCL is an extension to the Tool Command Language (TCL) that
-provides high-level access to a IBM UDB DB2 database server. 
+provides access to a IBM UDB DB2 database server. 
 
 DB2TCL features:
 -- supports multiple connections to one or more database servers,
 -- supports all IBM DB2 statements,
 -- returns SELECT query results either as TCL lists, or iterates
-   a script over the resulting rows,
+   a script over the resulting rows.
 
 
 WHERE TO GET DB2TCL
 ===================
 
-http://www.appliedtech.org/db2tcl
-http://www.busin.chel.su/db2tcl
+http://db2tcl.sourceforge.net/
+
 
 INSTALLATION
 ============
 
 Quick install instructions:
 
-- Untar @PACKAGE@ tarball
-$ tar xzvf @PACKAGE@-@VERSION@.tar.gz
-- Change dir to @PACKAGE@-@VERSION@
-$ cd @PACKAGE@-@VERSION@
+- Untar db2tcl tarball
+$ tar xzvf db2tcl-X.Y.Z.tar.gz
+- Change dir to db2tcl-X.Y.Z
+$ cd db2tcl-X.Y.Z
 - run configure script
 $ ./configure
 - run make
@@ -56,10 +56,49 @@ DB2TCL supports building a dynamic load library on systems that support
 dynamic loading.  If you build static libraries and executables, 
 I recommend building with Extended Tcl.
 
+BRIEF COMMAND REFERENCE
+=======================
+
+db2_connect dbname ?username? ?password?
+
+    Connect to database dbname with username and password. Function
+    return database handle.
+
+db2_disconnect db_handle
+
+    Disconnect from database and free database handle.
+
+db2_select db_handle sql_commands
+
+    Execute select SQL command for given handle.
+    Return statement handle.
+
+db2_execute db_handle sql_commands
+
+    Execute SQL command a database non-SELECT statement like INSERT,
+    DELETE, UPDATE.
+
+db2_bind db2_handle sql_commands varibles
+
+    Bind varibles to data.
+
+db2_fetchrow statement_handle ?number?
+
+    Fetch one row from dataset. If number  is specified, returns a  data
+    of this number column.
+
+db2_finish statement_handle
+
+    Finish and free statement handle.
+
+db2_getnumrow statement_handle
+
+    Return number column in statement.
+
 NOTE
 ====
 
 DB2TCL tested only on Linux systems!
 
 Sergey N. Belinsky
-sergey_be@mail.ru
+sergeybe@users.sourceforge.net

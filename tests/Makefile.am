@@ -1,6 +1,6 @@
-TESTS = test1.tcl test2.tcl test3.tcl test4.tcl
+TESTS = test1.tcl test2.tcl test3.tcl test4.tcl test5.tcl
 
-EXTRA_DIST = test1.tcl test2.tcl test3.tcl test4.tcl
+EXTRA_DIST = test1.tcl test2.tcl test3.tcl test4.tcl test5.tcl
 
 #install.index:
 #	(cd ${DESTDIR}/tclscripts/lib; \
