@@ -4,7 +4,7 @@
 Summary: TCL extension for IBM DB2
 Name: %{name}
 Version: %{version}
-Release: 1
+Release: 2
 Copyright: BSD
 Group: Applications/Databases
 Source: http://prdownloads.sourceforge.net/db2tcl/%{name}-%{version}.tar.gz
@@ -48,8 +48,12 @@ rm -rf %{buildroot}
 %doc README COPYING INSTALL TODO ChangeLog 
 /usr/bin/*
 /usr/lib/*
-/usr/man/man1/*
+%{_mandir}/man1/*
 
 %changelog
+* Mon Dec 16 2002 Sergey N. Belinsky <sergeybe@users.sourceforge.net>
+- Fix path to man directory
+
 * Thu Dec  5 2002 Sergey N. Belinsky <sergeybe@users.sourceforge.net>
 - Initial spec
+
