@@ -52,7 +52,7 @@ int Db2InputProc (ClientData cData, char *buf, int bufSize, int *errorCodePtr)
     return 0;
 }
 
-int Db2OutputProc (ClientData cData, char *buf, int bufSize,
+int Db2OutputProc (ClientData cData, CONST84 char *buf, int bufSize,
 		   int *errorCodePtr)
 {
     Db2Connection *conn;
@@ -68,6 +68,12 @@ Tcl_ChannelType Db2_ConnType = {
     Db2CloseConnection,		/* closeproc */
     Db2InputProc,		/* inputproc */
     Db2OutputProc,		/* outputproc */
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL,
+    NULL
 };
 
 /*
@@ -79,7 +85,7 @@ Tcl_ChannelType Db2_ConnType = {
 */
 
 int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
-		 char *argv[])
+		 CONST84 char *argv[])
 {
     int i;
     Tcl_Channel conn_channel;
@@ -180,7 +186,7 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 */
 
 int Db2_disconnect (ClientData cData, Tcl_Interp * interp, int argc,
-		    char *argv[])
+		    CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     char id[MAX_ID_LENGTH + 1];
@@ -219,7 +225,7 @@ int Db2_disconnect (ClientData cData, Tcl_Interp * interp, int argc,
     Return database handle
 */
 
-int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -253,8 +259,8 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 	Tcl_AppendResult (interp, conn->error_msg, 0);
 	return TCL_ERROR;
     }
-
-    conn->rc = SQLExecDirect (hstmt, (SQLCHAR *) argv[2], SQL_NTS);
+    /* NOTE: SQLExecDirect() has "char *", not "const char*" for the 2nd argument in the prototype*/
+    conn->rc = SQLExecDirect (hstmt, (char *) argv[2], SQL_NTS);
     if (conn->rc != SQL_SUCCESS)
     {
 	SQLError (henv, conn->hdbc, hstmt,
@@ -293,7 +299,7 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
     Return database handle
 */
 
-int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -329,7 +335,8 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 	return TCL_ERROR;
     }
 
-    conn->rc = SQLExecDirect (hstmt, (SQLCHAR *) argv[2], SQL_NTS);
+    /* NOTE: SQLExecDirect() has "char *", not "const char*" for the 2nd argument in the prototype*/
+    conn->rc = SQLExecDirect (hstmt, (char *) argv[2], SQL_NTS);
     if (conn->rc != SQL_SUCCESS)
     {
 	SQLError (henv, conn->hdbc, hstmt,
@@ -369,7 +376,7 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 */
 
 int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
-		  char *argv[])
+		  CONST84 char *argv[])
 {
     int i = 1;
     int num_col = 0;
@@ -380,6 +387,7 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
     char id[MAX_ID_LENGTH + 1];
     SQLHANDLE hdbc, hstmt;
     short num_fields;
+    SQLINTEGER res_size = 0;
 
     if (argc > 3 || argc < 2)
     {
@@ -433,8 +441,20 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 
     if (num_col)
     {
-	conn->rc = SQLGetData (hstmt,
-			       num_col, SQL_C_CHAR, buff, size_buff, NULL);
+	conn->rc = SQLGetData (hstmt, i + 1, SQL_C_CHAR, buff,
+                                       size_buff, &res_size);
+
+        if (conn->rc != SQL_SUCCESS)
+        {
+    	    SQLError (henv, conn->hdbc, hstmt,
+        	      (SQLCHAR *) & conn->sql_state,
+                      &conn->native_error,
+                      (SQLCHAR *) & conn->error_msg,
+                      sizeof (conn->error_msg), &conn->size_error_msg);
+    	    Tcl_AppendResult (interp, conn->error_msg, 0);
+            free (buff);
+            return TCL_ERROR;
+	}
 
 	Tcl_AppendElement (interp, (char *) buff);
 	/* Tcl_AppendResult(interp, (char *)buff, " ", 0); */
@@ -443,8 +463,20 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
     {
 	for (i = 0; i < num_fields; i++)
 	{
-	    conn->rc = SQLGetData (hstmt,
-				   i + 1, SQL_C_CHAR, buff, size_buff, NULL);
+	    conn->rc = SQLGetData (hstmt, i + 1, SQL_C_CHAR, buff, 
+			    		size_buff, &res_size);
+
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, 0);
+		    free (buff);
+		    return TCL_ERROR;
+	    }
 
 	    Tcl_AppendElement (interp, (char *) buff);
 	    /* Tcl_AppendResult(interp, (char *)buff, " ", 0); */
@@ -462,7 +494,7 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
     db2_finish handle
 */
 
-int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -519,7 +551,7 @@ int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 */
 
 int Db2_getnumrows (ClientData cData, Tcl_Interp * interp, int argc,
-		    char *argv[])
+		    CONST84 char *argv[])
 {
     SQLHANDLE hdbc, hstmt;
     short num_fields;
@@ -545,7 +577,7 @@ int Db2_getnumrows (ClientData cData, Tcl_Interp * interp, int argc,
 
 */
 
-int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -593,7 +625,7 @@ int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, char
 
 */
 
-int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -654,7 +686,7 @@ int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, cha
 
 */
 
-int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -712,7 +744,7 @@ int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, c
     db2tcl super command
 */
 
-int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
+int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     if (argc < 2 || argv[1] == NULL )
     {
@@ -761,13 +793,13 @@ int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, char *argv[])
 
 /* This function only for test */
 
-int Db2_test (ClientData clientData, Tcl_Interp * interp, int objc, Tcl_Obj *CONST objv[])
+int Db2_test (ClientData clientData, Tcl_Interp * interp, int objc, struct Tcl_Obj * CONST * objv)
 {
     int i;
 
     for(i = 0; i < objc; i++)
     {
-	printf("objv[%d] = %s\n", i, Tcl_GetStringFromObj(objv[i], NULL));
+	printf("objv[%d] = %s\n", i, Tcl_GetStringFromObj(*(objv + i), NULL));
     }
     return 0;
 }

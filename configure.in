@@ -34,10 +34,10 @@ AC_WITH_IBM_DB2
 dnl Checks for library functions.
 AC_SEARCH_LIBS(sqlurlog_api, db2 db2e, , 
     AC_MSG_ERROR(No IBM DB2 libraries found!))
-AC_SEARCH_LIBS(Tcl_Init, tcl8.3 tcl8.2 tcl8.1 tcl8.0 tcl, , 
-    AC_MSG_WARN(the Tcl library, ))
-AC_SEARCH_LIBS(Tk_Init, tk8.3 tk8.2 tk8.1 tk8.0 tk, ,
-    AC_MSG_WARN(the Tk library, ))
+dnl AC_SEARCH_LIBS(Tcl_Init, tcl8.3 tcl8.2 tcl8.1 tcl8.0 tcl, , 
+dnl     AC_MSG_WARN(the Tcl library, ))
+dnl AC_SEARCH_LIBS(Tk_Init, tk8.3 tk8.2 tk8.1 tk8.0 tk, ,
+dnl     AC_MSG_WARN(the Tk library, ))
 
 AC_SUBST(VERSION)
 

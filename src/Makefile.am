@@ -1,8 +1,14 @@
+db2tclsh_LDFLAGS = @LDFLAGS@ @TCL_LIB_SPEC@
+db2wish_LDFLAGS = @LDFLAGS@ @TCL_LIB_SPEC@ @TK_LIB_SPEC@
+
+AM_CFLAGS = -I@TCL_EXEC_PREFIX@/include -I@TK_EXEC_PREFIX@/include
+
 bin_PROGRAMS = db2tclsh db2wish
 db2tclsh_SOURCES = db2tclsh.c db2tclcmds.c db2tcl.c
 db2wish_SOURCES = db2wish.c db2tclcmds.c db2tcl.c
 #EXTRA_DIST = db2tclcmds.h db2tcl.h
 noinst_HEADERS = db2tclcmds.h db2tcl.h
+
 
 lib_LTLIBRARIES = libdb2tcl.la
 

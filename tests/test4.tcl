@@ -13,7 +13,7 @@ puts "Connect to database SAMPLE..."
 set conn1 [db2_connect SAMPLE]
 
 puts "Query table DB2TCL by operator select... "
-set res [db2_select $conn1 "SELECT * FROM db2tcl" ]
+set res [db2_select $conn1 "SELECT * FROM db2tcl WHERE ID=1" ]
 
 puts "Fetch all rows from query result..."
 
