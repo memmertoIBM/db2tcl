@@ -1,3 +1,4 @@
+aclocal.m4
 autom4te*.cache
 config.cache
 config.guess 
@@ -19,4 +20,5 @@ missing
 mkIndex.tcl
 mkinstalldirs 
 stamp-h
+stamp-h1
 stamp-h.in 
