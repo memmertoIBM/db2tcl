@@ -40,10 +40,6 @@ make install DESTDIR=%{buildroot}
 /sbin/ldconfig
 
 %clean
-rm -rf $RPM_BUILD_ROOT
-
-
-%clean
 rm -rf %{buildroot}
 
 
