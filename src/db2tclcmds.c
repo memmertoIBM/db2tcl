@@ -2,6 +2,7 @@
 
 #include "db2tclcmds.h"
 
+#include <sqlcli1.h>
 #include <string.h>
 
 static SQLHANDLE henv = SQL_NULL_HANDLE;
@@ -87,7 +88,6 @@ Tcl_ChannelType Db2_ConnType = {
 int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 		 CONST84 char *argv[])
 {
-    int i;
     Tcl_Channel conn_channel;
     Db2Connection *conn;
 
@@ -196,7 +196,7 @@ int Db2_disconnect (ClientData cData, Tcl_Interp * interp, int argc,
 
     /* db2sqlX.Y.Z where X is database handle, Y is database statement, Z is fields count */
 
-    if (argv[1] && sscanf (argv[1], "db2sql%d.%d.%d", &hdbc, &hstmt, &num_fields) < 1)
+    if (argv[1] && sscanf (argv[1], "db2sql%d.%d.%hd", &(SQLHANDLE)hdbc, &hstmt, &num_fields) < 1)
     {
 	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
 	return TCL_ERROR;
@@ -581,7 +581,7 @@ int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, CONS
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
-    SQLHANDLE hdbc, hstmt;
+    SQLHANDLE hstmt;
 
     if (argc != 2 || argv[1] == NULL)
     {
@@ -629,7 +629,7 @@ int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, CON
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
-    SQLHANDLE hdbc, hstmt;
+    SQLHANDLE hstmt;
 
     if (argc != 2 || argv[1] == NULL)
     {
@@ -690,7 +690,7 @@ int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, C
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
-    SQLHANDLE hdbc, hstmt;
+    SQLHANDLE hstmt;
 
     if (argc != 2 || argv[1] == NULL)
     {
