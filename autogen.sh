@@ -60,7 +60,9 @@ $AUTOHEADER
 $AUTOCONF
 cd $ORIGDIR
 
-$srcdir/configure --enable-maintainer-mode "$@"
+($srcdir/configure --enable-maintainer-mode "$@") || {
+	exit 1
+}
 
 echo 
 echo "Now type 'make' to compile $PROJECT."
