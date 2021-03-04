@@ -38,9 +38,9 @@ int Db2CloseConnection (ClientData cData, Tcl_Interp * interp)
 	SQLFreeHandle (SQL_HANDLE_ENV, henv);
 	henv = SQL_NULL_HANDLE;
     }
-
-/*    Tcl_EventuallyFree ((ClientData) conn, TCL_DYNAMIC); */
-    Tcl_EventuallyFree ((ClientData) conn->rc, TCL_DYNAMIC); 
+/*Change reverted to original as per pull request to memmertoIBM/db2tcl */
+      Tcl_EventuallyFree ((ClientData) conn, TCL_DYNAMIC); 
+/*    Tcl_EventuallyFree ((ClientData) conn->rc, TCL_DYNAMIC);  */
 
     return 0;
 }
