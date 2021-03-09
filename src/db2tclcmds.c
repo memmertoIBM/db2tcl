@@ -24,7 +24,7 @@ int Db2CloseConnection (ClientData cData, Tcl_Interp * interp)
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -38,8 +38,9 @@ int Db2CloseConnection (ClientData cData, Tcl_Interp * interp)
 	SQLFreeHandle (SQL_HANDLE_ENV, henv);
 	henv = SQL_NULL_HANDLE;
     }
-
-    Tcl_EventuallyFree ((ClientData) conn, TCL_DYNAMIC);
+/*Change reverted to original as per pull request to memmertoIBM/db2tcl */
+      Tcl_EventuallyFree ((ClientData) conn, TCL_DYNAMIC); 
+/*    Tcl_EventuallyFree ((ClientData) conn->rc, TCL_DYNAMIC);  */
 
     return 0;
 }
@@ -63,6 +64,11 @@ int Db2OutputProc (ClientData cData, CONST84 char *buf, int bufSize,
     return 0;
 }
 
+int Db2WatchProc (ClientData cData,  Tcl_Interp * interp)
+{
+    return 0;
+}
+
 Tcl_ChannelType Db2_ConnType = {
     "db2sql",			/* channel type */
     NULL,
@@ -72,7 +78,7 @@ Tcl_ChannelType Db2_ConnType = {
     NULL,
     NULL,
     NULL,
-    NULL,
+    Db2WatchProc,		/* watchproc */
     NULL,
     NULL
 };
@@ -93,11 +99,11 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 
     if (argc > 4 || argc < 2)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    conn = (Db2Connection *) malloc (sizeof (Db2Connection));
+    conn = (Db2Connection *) ckalloc (sizeof (Db2Connection));
     memset (conn, '\0', (sizeof (Db2Connection)));
 
     strncpy (conn->database, argv[1], SQL_MAX_DSN_LENGTH);
@@ -123,7 +129,7 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 		      &conn->native_error,
 		      (SQLCHAR *) & conn->error_msg,
 		      sizeof (conn->error_msg), &conn->size_error_msg);
-	    Tcl_AppendResult (interp, conn->error_msg, 0);
+	    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	    return TCL_ERROR;
 	}
     }
@@ -137,7 +143,7 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -154,7 +160,7 @@ int Db2_connect (ClientData cData, Tcl_Interp * interp, int argc,
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -193,39 +199,37 @@ int Db2_disconnect (ClientData cData, Tcl_Interp * interp, int argc,
     short num_fields;
     SQLHANDLE hdbc, hstmt;
 
-
     /* db2sqlX.Y.Z where X is database handle, Y is database statement, Z is fields count */
 
-    if (argv[1] && sscanf (argv[1], "db2sql%d.%d.%hd", &(SQLHANDLE)hdbc, &hstmt, &num_fields) < 1)
+   if (argv[1] && sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_fields) < 1) 
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
     snprintf (id, MAX_ID_LENGTH, "db2sql%d", (int) hdbc);
 
-    conn_channel = Tcl_GetChannel (interp, id, 0);
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    Tcl_ResetResult (interp);
-
-    return Tcl_UnregisterChannel (interp, conn_channel);
+       Tcl_ResetResult (interp);
+       return Tcl_UnregisterChannel (interp, conn_channel);
 }
 
 /*
     TCL syntax:
 
-    db2_exec handle sql_code
+    db2_exec_direct handle sql_code
 
     Return database handle
 */
 
-int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+int Db2_exec_direct (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -234,15 +238,15 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *arg
 
     if (argc != 3)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+    conn_channel = Tcl_GetChannel (interp, argv[1], NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -256,7 +260,7 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *arg
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
     /* NOTE: SQLExecDirect() has "char *", not "const char*" for the 2nd argument in the prototype*/
@@ -268,13 +272,13 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *arg
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
     /* Return result by template db2sqlX.Y */
     snprintf (buff, MAX_ID_LENGTH, "%s.%d", conn->id, SQL_NULL_HANDLE);
-    Tcl_AppendResult (interp, buff, 0);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
 
     conn->rc = SQLFreeHandle (SQL_HANDLE_STMT, hstmt);
     if (conn->rc != SQL_SUCCESS)
@@ -284,7 +288,7 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *arg
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -294,12 +298,12 @@ int Db2_exec (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *arg
 /*
     TCL syntax:
 
-    db2_select handle sql_code
+    db2_select_direct handle sql_code
 
     Return database handle
 */
 
-int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+int Db2_select_direct (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
 {
     Tcl_Channel conn_channel;
     Db2Connection *conn;
@@ -309,15 +313,15 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 
     if (argc != 3)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+    conn_channel = Tcl_GetChannel (interp, argv[1], NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -331,7 +335,7 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -344,7 +348,7 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -357,15 +361,470 @@ int Db2_select (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
     snprintf (buff, MAX_ID_LENGTH, "%s.%d.%d", conn->id, hstmt, num_fields);
-    Tcl_AppendResult (interp, buff, 0);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
 
     return TCL_OK;
 }
+
+/*
+    TCL syntax:
+
+    db2_prepare handle sql_code
+
+    Return database handle
+*/
+
+int Db2_prepare (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    SQLHANDLE hstmt;
+    short num_params;
+    char buff[MAX_ID_LENGTH + 1];
+
+    if (argc != 3)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn_channel = Tcl_GetChannel (interp, argv[1], NULL);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+    conn->rc = SQLAllocHandle (SQL_HANDLE_STMT, conn->hdbc, &hstmt);
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn->rc = SQLPrepare (hstmt, (char *) argv[2], SQL_NTS);
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+	return TCL_ERROR;
+    }
+
+
+    conn->rc = SQLNumParams (hstmt, &num_params);
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    snprintf (buff, MAX_ID_LENGTH, "%s.%d.%d", conn->id, hstmt, num_params);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
+
+    return TCL_OK;
+}
+
+/*
+    TCL syntax:
+
+    db2_bind_param handle parameters
+
+    Return database handle
+*/
+
+
+int Db2_bind_param (ClientData cData, Tcl_Interp * interp, int argc,
+                  CONST84 char *argv[])
+{
+    int i = 1;
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    char id[MAX_ID_LENGTH + 1];
+    SQLHANDLE hdbc, hstmt;
+    SQLLEN ival = SQL_NULL_DATA;
+    short num_params;
+    int nparam;
+    char **paramList;
+
+if (argc != 3)
+    {
+        Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+        return TCL_ERROR;
+    }
+
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_params) < 3)
+    {
+	Tcl_AppendResult (interp, argv[1], " first argument is not a prepared statement", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    snprintf (id, MAX_ID_LENGTH, "db2sql%d", (int) hdbc);
+
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+	if (Tcl_SplitList(interp, argv[2], &nparam, &paramList) != TCL_OK) {
+        Tcl_SetResult(interp, "Cannot parse the parameter list", TCL_STATIC);
+	if (paramList) ckfree((char *) paramList);
+	return TCL_ERROR;
+	} 
+
+	if (nparam != num_params) {
+        Tcl_SetResult(interp, "Number of parameters to bind differs from statement", TCL_STATIC);
+	if (paramList) ckfree((char *) paramList);
+	return TCL_ERROR; 
+	} 
+
+    conn->rc = SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+                    if (paramList) ckfree((char *) paramList);
+		    return TCL_ERROR;
+	    }
+
+	for (i = 0; i < nparam; i++)
+	{
+        if (strncmp (paramList[i], "NULL", 4) == 0)
+    {
+        /* null bind */
+        conn->rc = SQLBindParameter (hstmt, i + 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 0, 0, NULL, 0, &ival);
+    }
+    else
+    {
+        /* bind value */
+        conn->rc = SQLBindParameter (hstmt, i + 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 0, 0, paramList[i], 0, NULL);
+    }
+
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+                    if (paramList) ckfree((char *) paramList);
+		    return TCL_ERROR;
+	    }
+	}
+    if (paramList) ckfree((char *) paramList);
+    return TCL_OK;
+}
+
+/*
+    TCL syntax:
+
+    db2_bind_exec handle parameters
+
+    Return database handle
+*/
+
+
+int Db2_bind_exec (ClientData cData, Tcl_Interp * interp, int argc,
+                  CONST84 char *argv[])
+{
+    int i = 1;
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    char id[MAX_ID_LENGTH + 1];
+    char buff[MAX_ID_LENGTH + 1];
+    SQLHANDLE hdbc, hstmt;
+    SQLLEN ival = SQL_NULL_DATA;
+    short num_params;
+    int nparam;
+    char **paramList;
+
+if (argc != 3)
+    {
+        Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+        return TCL_ERROR;
+    }
+
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_params) < 3)
+    {
+	Tcl_AppendResult (interp, argv[1], " first argument is not a prepared statement", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    snprintf (id, MAX_ID_LENGTH, "db2sql%d", (int) hdbc);
+
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+	if (Tcl_SplitList(interp, argv[2], &nparam, &paramList) != TCL_OK) {
+        Tcl_SetResult(interp, "Cannot parse the parameter list", TCL_STATIC);
+	if (paramList) ckfree((char *) paramList);
+	return TCL_ERROR;
+	} 
+
+	if (nparam != num_params) {
+        Tcl_SetResult(interp, "Number of parameters to bind differs from statement", TCL_STATIC);
+	if (paramList) ckfree((char *) paramList);
+	return TCL_ERROR; 
+	} 
+
+    conn->rc = SQLFreeStmt(hstmt, SQL_RESET_PARAMS);
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+		    if (paramList) ckfree((char *) paramList);
+		    return TCL_ERROR;
+	    }
+
+	for (i = 0; i < nparam; i++)
+	{
+  if (strncmp (paramList[i], "NULL", 4) == 0)
+    {
+        /* null bind */
+        conn->rc = SQLBindParameter (hstmt, i + 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 0, 0, NULL, 0, &ival);
+    }
+    else
+    {
+        /* bind value */
+        conn->rc = SQLBindParameter (hstmt, i + 1, SQL_PARAM_INPUT, SQL_C_CHAR, SQL_CHAR, 0, 0, paramList[i], 0, NULL);
+    }
+
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+		    if (paramList) ckfree((char *) paramList);
+		    return TCL_ERROR;
+	    }
+	}
+
+    conn->rc = SQLExecute (hstmt);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+        SQLError (henv, conn->hdbc, hstmt,
+                  (SQLCHAR *) & conn->sql_state,
+                  &conn->native_error,
+                  (SQLCHAR *) & conn->error_msg,
+                  sizeof (conn->error_msg), &conn->size_error_msg);
+        Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+        if (paramList) ckfree((char *) paramList);
+        return TCL_ERROR;
+    }
+
+    /* Return result by template db2sqlX.Y */
+    snprintf (buff, MAX_ID_LENGTH, "%s.%d", conn->id, SQL_NULL_HANDLE);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
+    if (paramList) ckfree((char *) paramList);
+    return TCL_OK;
+}
+/*
+    TCL syntax:
+
+    db2_exec_prepared handle 
+
+    Return database handle
+*/
+
+int Db2_exec_prepared (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    SQLHANDLE hdbc, hstmt;
+    char id[MAX_ID_LENGTH + 1];
+    char buff[MAX_ID_LENGTH + 1];
+    short num_params;
+
+    if (argc != 2)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_params) < 3)
+    {
+	Tcl_AppendResult (interp, argv[1], " first argument is not a prepared statement", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    snprintf (id, MAX_ID_LENGTH, "db2sql%d", (int) hdbc);
+
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+    conn->rc = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+		    return TCL_ERROR;
+	    }
+
+
+    conn->rc = SQLExecute (hstmt);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    /* Return result by template db2sqlX.Y */
+    snprintf (buff, MAX_ID_LENGTH, "%s.%d", conn->id, SQL_NULL_HANDLE);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
+
+    return TCL_OK;
+}
+/*
+    TCL syntax:
+
+    db2_select_prepared handle
+
+    Return database handle
+*/
+
+int Db2_select_prepared (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    Tcl_Channel conn_channel;
+    Db2Connection *conn;
+    SQLHANDLE hdbc, hstmt;
+    char id[MAX_ID_LENGTH + 1];
+    char buff[MAX_ID_LENGTH + 1];
+    short num_params;
+    short num_fields;
+
+    if (argc != 2)
+    {
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_params) < 3)
+    {
+	Tcl_AppendResult (interp, argv[1], " first argument is not a prepared statement", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    snprintf (id, MAX_ID_LENGTH, "db2sql%d", (int) hdbc);
+
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
+
+    if (conn_channel == NULL)
+    {
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) Tcl_GetChannelInstanceData (conn_channel);
+
+    conn->rc = SQLFreeStmt(hstmt, SQL_CLOSE);
+
+	    if (conn->rc != SQL_SUCCESS)
+	    {
+		    SQLError (henv, conn->hdbc, hstmt,
+				    (SQLCHAR *) & conn->sql_state,
+				    &conn->native_error,
+				    (SQLCHAR *) & conn->error_msg,
+				    sizeof (conn->error_msg), &conn->size_error_msg);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+		    return TCL_ERROR;
+	    }
+
+    conn->rc = SQLExecute (hstmt);
+
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    conn->rc = SQLNumResultCols (hstmt, &num_fields);
+    if (conn->rc != SQL_SUCCESS)
+    {
+	SQLError (henv, conn->hdbc, hstmt,
+		  (SQLCHAR *) & conn->sql_state,
+		  &conn->native_error,
+		  (SQLCHAR *) & conn->error_msg,
+		  sizeof (conn->error_msg), &conn->size_error_msg);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+	return TCL_ERROR;
+    }
+
+    snprintf (buff, MAX_ID_LENGTH, "%s.%d.%d", conn->id, hstmt, num_fields);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
+
+    return TCL_OK;
+}
+
+/*
 
 /*
     TCL syntax:
@@ -391,13 +850,13 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 
     if (argc > 3 || argc < 2)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    if (sscanf (argv[1], "db2sql%d.%d.%d", &hdbc, &hstmt, &num_fields) < 3)
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_fields) < 3)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid statement", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid statement", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -408,11 +867,11 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 	num_col = atoi (argv[2]);
     }
 
-    conn_channel = Tcl_GetChannel (interp, id, 0);
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -432,12 +891,12 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
     size_buff = 4096;
-    buff = (SQLPOINTER *) malloc (size_buff);
+    buff = (SQLPOINTER *) ckalloc (size_buff);
 
     if (num_col)
     {
@@ -451,13 +910,13 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
                       &conn->native_error,
                       (SQLCHAR *) & conn->error_msg,
                       sizeof (conn->error_msg), &conn->size_error_msg);
-    	    Tcl_AppendResult (interp, conn->error_msg, 0);
-            free (buff);
+    	    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+            ckfree (buff);
             return TCL_ERROR;
 	}
 
-	Tcl_AppendElement (interp, (char *) buff);
-	/* Tcl_AppendResult(interp, (char *)buff, " ", 0); */
+ 	Tcl_AppendElement (interp, (char *) buff); 
+/* 	Tcl_AppendResult(interp, (char *)buff, " ", 0);  */
     }
     else
     {
@@ -473,17 +932,17 @@ int Db2_fetchrow (ClientData cData, Tcl_Interp * interp, int argc,
 				    &conn->native_error,
 				    (SQLCHAR *) & conn->error_msg,
 				    sizeof (conn->error_msg), &conn->size_error_msg);
-		    Tcl_AppendResult (interp, conn->error_msg, 0);
-		    free (buff);
+		    Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
+		    ckfree (buff);
 		    return TCL_ERROR;
 	    }
 
 	    Tcl_AppendElement (interp, (char *) buff);
-	    /* Tcl_AppendResult(interp, (char *)buff, " ", 0); */
+	/*    Tcl_AppendResult(interp, (char *)buff, " ", 0);  */
 	}
     }
 
-    free (buff);
+    ckfree (buff);
 
     return TCL_OK;
 }
@@ -504,23 +963,23 @@ int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 
     if (argc != 2)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    if (sscanf (argv[1], "db2sql%d.%d.%d", &hdbc, &hstmt, &num_fields) < 3)
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_fields) < 3)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid statement", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid statement", (char *)NULL);
 	return TCL_ERROR;
     }
 
     snprintf (id, MAX_ID_LENGTH, "db2sql%d", (int) hdbc);
 
-    conn_channel = Tcl_GetChannel (interp, id, 0);
+    conn_channel = Tcl_GetChannel (interp, id, NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -535,7 +994,7 @@ int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -549,27 +1008,25 @@ int Db2_finish (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *a
 
     Return number of columns in query
 */
-
 int Db2_getnumrows (ClientData cData, Tcl_Interp * interp, int argc,
-		    CONST84 char *argv[])
+                    CONST84 char *argv[])
 {
     SQLHANDLE hdbc, hstmt;
     short num_fields;
     char buff[32];
 
-    if (sscanf (argv[1], "db2sql%d.%d.%d", &hdbc, &hstmt, &num_fields) < 3)
+    if (sscanf (argv[1], "db2sql%d.%d.%hd", &hdbc, &hstmt, &num_fields) < 3)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid statement", 0);
-	return TCL_ERROR;
+        Tcl_AppendResult (interp, argv[1], " is not a valid statement", (char *)NULL);
+        return TCL_ERROR;
     }
 
     snprintf (buff, 32, "%d", num_fields);
 
-    Tcl_AppendResult (interp, buff, 0);
+    Tcl_AppendResult (interp, buff, (char *)NULL);
 
     return TCL_OK;
 }
-
 /*
     TCL syntax: 
 
@@ -585,15 +1042,15 @@ int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, CONS
 
     if (argc != 2 || argv[1] == NULL)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+    conn_channel = Tcl_GetChannel (interp, argv[1], NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -611,7 +1068,7 @@ int Db2_begin_transaction (ClientData cData, Tcl_Interp * interp, int argc, CONS
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -633,15 +1090,15 @@ int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, CON
 
     if (argc != 2 || argv[1] == NULL)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+    conn_channel = Tcl_GetChannel (interp, argv[1], NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -656,7 +1113,7 @@ int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, CON
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -672,7 +1129,7 @@ int Db2_commit_transaction (ClientData cData, Tcl_Interp * interp, int argc, CON
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -694,15 +1151,15 @@ int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, C
 
     if (argc != 2 || argv[1] == NULL)
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
-    conn_channel = Tcl_GetChannel (interp, argv[1], 0);
+    conn_channel = Tcl_GetChannel (interp, argv[1], NULL);
 
     if (conn_channel == NULL)
     {
-	Tcl_AppendResult (interp, argv[1], " is not a valid connection", 0);
+	Tcl_AppendResult (interp, argv[1], " is not a valid connection", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -717,7 +1174,7 @@ int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, C
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -733,7 +1190,7 @@ int Db2_rollback_transaction (ClientData cData, Tcl_Interp * interp, int argc, C
 		  &conn->native_error,
 		  (SQLCHAR *) & conn->error_msg,
 		  sizeof (conn->error_msg), &conn->size_error_msg);
-	Tcl_AppendResult (interp, conn->error_msg, 0);
+	Tcl_AppendResult (interp, conn->error_msg, (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -748,7 +1205,7 @@ int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv
 {
     if (argc < 2 || argv[1] == NULL )
     {
-	Tcl_AppendResult (interp, "Wrong number of arguments", 0);
+	Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
 	return TCL_ERROR;
     }
 
@@ -756,17 +1213,41 @@ int Db2_db2 (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv
     {
 	Db2_fetchrow (cData, interp, argc - 1, argv + 1);
     }
-    else if (strncmp (argv[1], "select", 6) == 0)
+    else if (strncmp (argv[1], "getnumrows", 9) == 0)
     {
-	Db2_select (cData, interp, argc - 1, argv + 1);
+	Db2_getnumrows (cData, interp, argc - 1, argv + 1);
     }
+    else if (strncmp (argv[1], "select_direct", 13) == 0)
+    {
+	Db2_select_direct (cData, interp, argc - 1, argv + 1);
+    }
+    else if (strncmp (argv[1], "select_prepared", 15) == 0)
+    {
+	Db2_select_prepared (cData, interp, argc - 1, argv + 1);
+    }
+    else if (strncmp (argv[1], "prepare", 7) == 0)
+    {
+	Db2_prepare (cData, interp, argc - 1, argv + 1);
+    } 
+    else if (strncmp (argv[1], "bind_param", 10) == 0)
+    {
+	Db2_bind_param (cData, interp, argc - 1, argv + 1);
+    } 
+    else if (strncmp (argv[1], "bind_exec", 9) == 0)
+    {
+	Db2_bind_exec (cData, interp, argc - 1, argv + 1);
+    } 
     else if (strncmp (argv[1], "finish", 6) == 0)
     {
 	Db2_finish (cData, interp, argc - 1, argv + 1);
     }
-    else if (strncmp (argv[1], "exec", 4) == 0)
+    else if (strncmp (argv[1], "exec_direct", 11) == 0)
     {
-	Db2_exec (cData, interp, argc - 1, argv + 1);
+	Db2_exec_direct (cData, interp, argc - 1, argv + 1);
+    }
+    else if (strncmp (argv[1], "exec_prepared", 13) == 0)
+    {
+	Db2_exec_prepared (cData, interp, argc - 1, argv + 1);
     }
     if (strncmp (argv[1], "connect", 7) == 0)
     {

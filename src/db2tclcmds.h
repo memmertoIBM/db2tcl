@@ -3,6 +3,10 @@
 #ifndef DB2TCLCMDS_H
 #define DB2TCLCMDS_H
 
+#ifdef _WINDOWS
+#define snprintf _snprintf
+#endif
+
 #include <tcl.h>
 #include <sqlcli.h>
 
@@ -66,13 +70,43 @@ extern int Db2_disconnect(
 		int argc, 
 		CONST84 char *argv[]);
 
-extern int Db2_exec(
+extern int Db2_exec_direct(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
 		CONST84 char *argv[]);
 
-extern int Db2_select(
+extern int Db2_exec_prepared(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		CONST84 char *argv[]);
+
+extern int Db2_select_direct(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		CONST84 char *argv[]);
+
+extern int Db2_select_prepared(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		CONST84 char *argv[]);
+
+extern int Db2_prepare(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		CONST84 char *argv[]);
+
+extern int Db2_bind_param(
+		ClientData cData, 
+		Tcl_Interp *interp, 
+		int argc, 
+		CONST84 char *argv[]);
+
+extern int Db2_bind_exec(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
@@ -90,7 +124,7 @@ extern int Db2_fetchrow(
 		int argc, 
 		CONST84 char *argv[]);
 
-extern int Db2_getnumrow(
+extern int Db2_getnumrows(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
