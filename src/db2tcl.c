@@ -7,7 +7,7 @@
    #include <tk.h>
    #define PACKAGE "db2tcl"
 #endif
-   #define PACKAGE_VERSION "2.0.0"
+   #define PACKAGE_VERSION "2.0.1"
 
 #ifdef _WINDOWS
 __declspec( dllexport )

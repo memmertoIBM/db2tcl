@@ -127,7 +127,7 @@ Tcl_AppInit(interp)
      * where "Mod" is the name of the module.
      */
     
-    if (Db_Init(interp) == TCL_ERROR) {
+    if (Db2tcl_Init(interp) == TCL_ERROR) {
         return TCL_ERROR;
     }
     
