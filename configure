@@ -421,9 +421,10 @@ SHELL=${CONFIG_SHELL-/bin/sh}
 
 # Identity of this package.
 PACKAGE_NAME='db2tcl'
+PACKAGE_LIB='libdb2tcl.so'
 PACKAGE_TARNAME='db2tcl'
-PACKAGE_VERSION='0.0.3'
-PACKAGE_STRING='db2tcl 0.0.3'
+PACKAGE_VERSION='2.0.1'
+PACKAGE_STRING='db2tcl 2.0.1'
 PACKAGE_BUGREPORT='sergeybe@users.sourceforge.net'
 
 ac_unique_file="config.h.in"
@@ -464,7 +465,7 @@ ac_includes_default="\
 # include <unistd.h>
 #endif"
 
-ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL LIBTOOL_DEPS TCL_EXEC_PREFIX TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIBS TCL_DEFS TCL_SHLIB_LD_LIBS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_STUB_LIB_FILE TCL_LIB_SPEC TCL_BUILD_LIB_SPEC TCL_STUB_LIB_SPEC TCL_BUILD_STUB_LIB_SPEC TK_EXEC_PREFIX TK_LIB_SPEC TK_BIN_DIR TK_SRC_DIR TK_LIB_FILE LIBOBJS LTLIBOBJS'
+ac_subst_vars='SHELL PATH_SEPARATOR PACKAGE_NAME PACKAGE_LIB PACKAGE_TARNAME PACKAGE_VERSION PACKAGE_STRING PACKAGE_BUGREPORT exec_prefix prefix program_transform_name bindir sbindir libexecdir datadir sysconfdir sharedstatedir localstatedir libdir includedir oldincludedir infodir mandir build_alias host_alias target_alias DEFS ECHO_C ECHO_N ECHO_T LIBS INSTALL_PROGRAM INSTALL_SCRIPT INSTALL_DATA CYGPATH_W PACKAGE VERSION ACLOCAL AUTOCONF AUTOMAKE AUTOHEADER MAKEINFO AMTAR install_sh STRIP ac_ct_STRIP INSTALL_STRIP_PROGRAM AWK SET_MAKE am__leading_dot MAINTAINER_MODE_TRUE MAINTAINER_MODE_FALSE MAINT CC CFLAGS LDFLAGS CPPFLAGS ac_ct_CC EXEEXT OBJEXT DEPDIR am__include am__quote AMDEP_TRUE AMDEP_FALSE AMDEPBACKSLASH CCDEPMODE am__fastdepCC_TRUE am__fastdepCC_FALSE LN_S build build_cpu build_vendor build_os host host_cpu host_vendor host_os EGREP ECHO AR ac_ct_AR RANLIB ac_ct_RANLIB CPP CXX CXXFLAGS ac_ct_CXX CXXDEPMODE am__fastdepCXX_TRUE am__fastdepCXX_FALSE CXXCPP F77 FFLAGS ac_ct_F77 LIBTOOL LIBTOOL_DEPS TCL_EXEC_PREFIX TCL_BIN_DIR TCL_SRC_DIR TCL_LIB_FILE TCL_LIBS TCL_DEFS TCL_SHLIB_LD_LIBS TCL_EXTRA_CFLAGS TCL_LD_FLAGS TCL_STUB_LIB_FILE TCL_LIB_SPEC TCL_BUILD_LIB_SPEC TCL_STUB_LIB_SPEC TCL_BUILD_STUB_LIB_SPEC TK_EXEC_PREFIX TK_LIB_SPEC TK_BIN_DIR TK_SRC_DIR TK_LIB_FILE LIBOBJS LTLIBOBJS'
 ac_subst_files=''
 
 # Initialize some variables set by options.
@@ -1342,6 +1343,9 @@ cat >>confdefs.h <<_ACEOF
 #define PACKAGE_NAME "$PACKAGE_NAME"
 _ACEOF
 
+cat >>confdefs.h <<_ACEOF
+#define PACKAGE_LIB "$PACKAGE_LIB"
+_ACEOF
 
 cat >>confdefs.h <<_ACEOF
 #define PACKAGE_TARNAME "$PACKAGE_TARNAME"
@@ -2389,7 +2393,7 @@ main ()
 }
 _ACEOF
 ac_clean_files_save=$ac_clean_files
-ac_clean_files="$ac_clean_files a.out a.exe b.out"
+ac_clean_files="$ac_clean_files a.out a.exe b.out pkgIndex.tcl"
 # Try to create an executable without -o first, disregard a.out.
 # It will help us diagnose broken compilers, and finding out an intuition
 # of exeext.
@@ -19475,7 +19479,7 @@ fi
 
 
 
-                                                            ac_config_files="$ac_config_files Makefile src/Makefile doc/Makefile tests/Makefile mkIndex.tcl db2tcl.spec"
+                                                            ac_config_files="$ac_config_files Makefile src/Makefile doc/Makefile tests/Makefile pkgIndex.tcl db2tcl.spec"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -20057,7 +20061,7 @@ do
   "src/Makefile" ) CONFIG_FILES="$CONFIG_FILES src/Makefile" ;;
   "doc/Makefile" ) CONFIG_FILES="$CONFIG_FILES doc/Makefile" ;;
   "tests/Makefile" ) CONFIG_FILES="$CONFIG_FILES tests/Makefile" ;;
-  "mkIndex.tcl" ) CONFIG_FILES="$CONFIG_FILES mkIndex.tcl" ;;
+  "pkgIndex.tcl" ) CONFIG_FILES="$CONFIG_FILES pkgIndex.tcl" ;;
   "db2tcl.spec" ) CONFIG_FILES="$CONFIG_FILES db2tcl.spec" ;;
   "depfiles" ) CONFIG_COMMANDS="$CONFIG_COMMANDS depfiles" ;;
   "config.h" ) CONFIG_HEADERS="$CONFIG_HEADERS config.h" ;;
@@ -20119,6 +20123,7 @@ if test -n "\$CONFIG_FILES"; then
 s,@SHELL@,$SHELL,;t t
 s,@PATH_SEPARATOR@,$PATH_SEPARATOR,;t t
 s,@PACKAGE_NAME@,$PACKAGE_NAME,;t t
+s,@PACKAGE_LIB@,$PACKAGE_LIB,;t t
 s,@PACKAGE_TARNAME@,$PACKAGE_TARNAME,;t t
 s,@PACKAGE_VERSION@,$PACKAGE_VERSION,;t t
 s,@PACKAGE_STRING@,$PACKAGE_STRING,;t t

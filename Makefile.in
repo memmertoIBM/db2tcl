@@ -211,8 +211,8 @@ $(srcdir)/config.h.in: @MAINTAINER_MODE_TRUE@ $(top_srcdir)/configure.in $(ACLOC
 
 distclean-hdr:
 	-rm -f config.h stamp-h1
-mkIndex.tcl: $(top_builddir)/config.status mkIndex.tcl.in
-	cd $(top_builddir) && $(SHELL) ./config.status $@
+mkIndex.tcl:
+	$(INSTALL_DATA) pkgIndex.tcl $(libdir)
 db2tcl.spec: $(top_builddir)/config.status db2tcl.spec.in
 	cd $(top_builddir) && $(SHELL) ./config.status $@
 
