@@ -23,10 +23,10 @@
 /*
  * The following variable is a special hack that is needed in order for
  * Sun shared libraries to be used for Tcl.
- */
 
 extern int matherr();
 int *tclDummyMathPtr = (int *) matherr;
+*/
 
 
 #ifdef TCL_TEST
