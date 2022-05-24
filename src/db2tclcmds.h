@@ -4,7 +4,9 @@
 #define DB2TCLCMDS_H
 
 #ifdef _WINDOWS
+#if _MSC_VER < 1700 
 #define snprintf _snprintf
+#endif
 #endif
 
 #include <tcl.h>

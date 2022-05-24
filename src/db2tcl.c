@@ -97,3 +97,11 @@ Tcl_Interp * interp;
 {
     return Db2tcl_Init (interp);
 }
+#ifdef _WINDOWS
+__declspec( dllexport )
+#endif
+int Db_Init(interp) 
+Tcl_Interp * interp;
+{
+    return Db2tcl_Init (interp);
+}

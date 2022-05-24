@@ -1,0 +1,56 @@
+# Makefile.vc
+
+PGTCL_VERSION = 2.0.1
+DLL_VERSION = 201
+
+PROJECT = db2tcl$(DLL_VERSION)
+!include "rules.vc"
+
+ROOT    = .
+TMPDIR  = .
+TCL_INCLUDE = "$(TCLDIR)\include"
+TK_INCLUDE = "$(TKDIR)\include"
+TK_LIBRARY = "$(TKDIR)\lib"
+MACHINE  = x64
+
+# comment the following line to compile with symbols
+NODEBUG=1
+
+CP      = copy
+RM      = del
+
+PACKAGE_NAME	= db2tcl
+PACKAGE_VERSION	= 2.0.1
+DLL = libdb2tcl.dll
+
+lflags = /NOLOGO /MACHINE:$(MACHINE) /LIBPATH:"$(TCL_LIBRARY)"
+
+DLLENTRY = @12
+dlllflags = $(lflags) -entry:_DllMainCRTStartup -dll
+
+
+CLFLAGS = /c -Ob2 -favor:blend /MT /W3 /nologo /D_CRT_SECURE_NO_WARNINGS -DUSE_TCL_STUBS -DPACKAGE_NAME=\"db2tcl\" -DPACKAGE_VERSION=\"2.0.1\"
+
+baselibs   =  "$(TCL_LIBRARY)/tcl86t.lib" "$(TCL_LIBRARY)/tclstub86.lib" "$(TK_LIBRARY)/tk86t.lib" "$(TK_LIBRARY)/tkstub86.lib" "$(LIBDIR)/db2cli.lib"
+
+DIR_SRC = ..\src
+
+all: libdb2tcl.dll
+
+libdb2tcl.dll: db2tcl.obj db2tclcmds.obj
+	link $(dllflags)  -entry:_DllMainCRTStartup -dll $(baselibs) -out:$@ db2tcl.obj db2tclcmds.obj
+
+db2tcl.obj: $(DIR_SRC)\db2tcl.c
+	cl $(CLFLAGS) /D_WINDOWS /I"$(TCL_INCLUDE)"  /I"$(TK_INCLUDE)" /I"$(INCLUDEDIR)" $(DIR_SRC)\db2tcl.c
+db2tclcmds.obj: $(DIR_SRC)\db2tclcmds.c
+	cl $(CLFLAGS) /D_WINDOWS /I"$(TCL_INCLUDE)"  /I"$(TK_INCLUDE)" /I"$(INCLUDEDIR)" $(DIR_SRC)\db2tclcmds.c
+
+install:  install-libraries pkgindex
+
+install-libraries: 
+	@echo Installing libraries to '$(INSTALLDIR)'
+	@if not exist "$(INSTALLDIR)" mkdir "$(INSTALLDIR)"
+	@$(CPY) $(DLL) "$(INSTALLDIR)" >NUL
+pkgindex:
+        @echo package ifneeded $(PACKAGE_NAME) $(PACKAGE_VERSION) \
+            [list load [file join $$dir $(DLL)]] >> $(INSTALLDIR)\pkgIndex.tcl
