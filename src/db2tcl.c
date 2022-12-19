@@ -34,6 +34,12 @@ Tcl_Interp * interp;
     Tcl_CreateCommand (interp, "db2_disconnect", Db2_disconnect,
 		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
+    Tcl_CreateCommand (interp, "db2_create_db", Db2_create_db,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateCommand (interp, "db2_drop_db", Db2_drop_db,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
     Tcl_CreateCommand (interp, "db2_exec_direct", Db2_exec_direct,
 		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 

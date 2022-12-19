@@ -72,6 +72,18 @@ extern int Db2_disconnect(
 		int argc, 
 		CONST84 char *argv[]);
 
+extern int Db2_create_db(
+		ClientData cData,
+		Tcl_Interp *interp,
+		int argc,
+		CONST84 char *argv[]);
+
+extern int Db2_drop_db(
+		ClientData cData,
+		Tcl_Interp *interp,
+		int argc,
+		CONST84 char *argv[]);
+
 extern int Db2_exec_direct(
 		ClientData cData, 
 		Tcl_Interp *interp, 
