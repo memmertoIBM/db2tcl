@@ -84,6 +84,12 @@ extern int Db2_drop_db(
 		int argc,
 		CONST84 char *argv[]);
 
+extern int Db2_force_off(
+		ClientData cData,
+		Tcl_Interp *interp,
+		int argc,
+		CONST84 char *argv[]);
+
 extern int Db2_exec_direct(
 		ClientData cData, 
 		Tcl_Interp *interp, 

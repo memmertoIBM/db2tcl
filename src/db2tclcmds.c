@@ -326,6 +326,41 @@ int Db2_drop_db (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *
 }
 
 /*
+   TCL syntax:
+
+   db2_force_off
+
+   Return execution results
+*/
+
+int Db2_force_off (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    Db2Connection *conn;
+    struct sqlca sqlca;
+    SQL_API_RC rc;
+    char error_msg[1024];
+
+    if (argc != 1)
+    {
+        Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+        return TCL_ERROR;
+    }
+
+    /* force off all the appl. connected to all databases */
+    memset(&sqlca, 0, sizeof(sqlca));
+    sqlefrce(SQL_ALL_USERS, NULL, SQL_ASYNCH, &sqlca);
+    if (sqlca.sqlcode < 0) {
+        rc = sqlaintp(error_msg, sizeof(error_msg), 80, &sqlca);
+        if (rc > 0) {
+            Tcl_AppendResult (interp, error_msg, (char *)NULL);
+        }
+        return TCL_ERROR;
+    }
+
+    return TCL_OK;
+}
+
+/*
     TCL syntax:
 
     db2_exec_direct handle sql_code
