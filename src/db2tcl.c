@@ -7,7 +7,7 @@
    #include <tk.h>
    #define PACKAGE "db2tcl"
 #endif
-   #define PACKAGE_VERSION "2.0.0"
+   #define PACKAGE_VERSION "2.0.1"
 
 #ifdef _WINDOWS
 __declspec( dllexport )
@@ -32,6 +32,15 @@ Tcl_Interp * interp;
 		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateCommand (interp, "db2_disconnect", Db2_disconnect,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateCommand (interp, "db2_create_db", Db2_create_db,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateCommand (interp, "db2_drop_db", Db2_drop_db,
+		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
+
+    Tcl_CreateCommand (interp, "db2_force_off", Db2_force_off,
 		       (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateCommand (interp, "db2_exec_direct", Db2_exec_direct,
@@ -93,6 +102,14 @@ Tcl_Interp * interp;
 __declspec( dllexport )
 #endif
 int Db2tcl_SafeInit(interp) 
+Tcl_Interp * interp;
+{
+    return Db2tcl_Init (interp);
+}
+#ifdef _WINDOWS
+__declspec( dllexport )
+#endif
+int Db_Init(interp) 
 Tcl_Interp * interp;
 {
     return Db2tcl_Init (interp);

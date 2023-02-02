@@ -4,7 +4,9 @@
 #define DB2TCLCMDS_H
 
 #ifdef _WINDOWS
+#if _MSC_VER < 1700 
 #define snprintf _snprintf
+#endif
 #endif
 
 #include <tcl.h>
@@ -68,6 +70,24 @@ extern int Db2_disconnect(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
+		CONST84 char *argv[]);
+
+extern int Db2_create_db(
+		ClientData cData,
+		Tcl_Interp *interp,
+		int argc,
+		CONST84 char *argv[]);
+
+extern int Db2_drop_db(
+		ClientData cData,
+		Tcl_Interp *interp,
+		int argc,
+		CONST84 char *argv[]);
+
+extern int Db2_force_off(
+		ClientData cData,
+		Tcl_Interp *interp,
+		int argc,
 		CONST84 char *argv[]);
 
 extern int Db2_exec_direct(
