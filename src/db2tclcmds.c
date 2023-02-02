@@ -1,7 +1,6 @@
 /* $Id$ */
 
 #include "db2tclcmds.h"
-/*#include <sqle819a.h>*/ /* For sqlecrea(): struct sqledbdesc: sqldbudc sqle_819_500 */
 #include <sqlcli1.h>
 #include <sqlenv.h>
 #include <string.h>

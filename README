@@ -14,8 +14,8 @@ DB2TCL features:
 WHERE TO GET DB2TCL?
 ====================
 
-http://sourceforge.net/projects/db2tcl/
-
+original - http://sourceforge.net/projects/db2tcl/
+updated - https://github.com/memmertoIBM/db2tcl/
 
 INSTALLATION
 ============
@@ -109,11 +109,22 @@ db2_rollback_transaction db_handle
 
     Rollback transaction
     
-    
+db2_create_db dbname
+
+    Create database 
+
+db2_drop_db dbname
+
+    Drop database
+
+db2_force_off
+
+    Run Db2 force application
+
 NOTE
 ====
 
-DB2TCL tested only on Linux 2.4.x systems and Solaris 8!
+DB2TCL tested on Linux and Windows
 
 Sergey N. Belinsky
 sergeybe@users.sourceforge.net
