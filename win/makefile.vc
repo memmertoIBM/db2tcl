@@ -31,7 +31,7 @@ dlllflags = $(lflags) -entry:_DllMainCRTStartup -dll
 
 CLFLAGS = /c -Ob2 -favor:blend /MT /W3 /nologo /D_CRT_SECURE_NO_WARNINGS -DUSE_TCL_STUBS -DPACKAGE_NAME=\"db2tcl\" -DPACKAGE_VERSION=\"2.0.1\"
 
-baselibs   =  "$(TCL_LIBRARY)/tcl86t.lib" "$(TCL_LIBRARY)/tclstub86.lib" "$(TK_LIBRARY)/tk86t.lib" "$(TK_LIBRARY)/tkstub86.lib" "$(LIBDIR)/db2cli.lib"
+baselibs   =  "$(TCL_LIBRARY)/tcl86t.lib" "$(TCL_LIBRARY)/tclstub86.lib" "$(TK_LIBRARY)/tk86t.lib" "$(TK_LIBRARY)/tkstub86.lib" "$(LIBDIR)/db2cli.lib" "$(LIBDIR)/db2api.lib"
 
 DIR_SRC = ..\src
 

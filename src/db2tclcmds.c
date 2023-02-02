@@ -1,8 +1,9 @@
 /* $Id$ */
 
 #include "db2tclcmds.h"
-
+/*#include <sqle819a.h>*/ /* For sqlecrea(): struct sqledbdesc: sqldbudc sqle_819_500 */
 #include <sqlcli1.h>
+#include <sqlenv.h>
 #include <string.h>
 
 static SQLHANDLE henv = SQL_NULL_HANDLE;
@@ -219,6 +220,144 @@ int Db2_disconnect (ClientData cData, Tcl_Interp * interp, int argc,
 
        Tcl_ResetResult (interp);
        return Tcl_UnregisterChannel (interp, conn_channel);
+}
+
+/*
+   TCL syntax:
+
+   db2_create_db dbname
+   Return database handle
+*/
+
+int Db2_create_db (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    struct sqlca sqlca;
+    char dbName[SQL_DBNAME_SZ + 1];
+    char dbLocalAlias[SQL_ALIAS_SZ + 1];
+    char dbPath[SQL_PATH_SZ + 1];
+    /* struct sqledbdesc dbDescriptor; */
+    SQLEDBTERRITORYINFO territoryInfo;
+    SQL_API_RC rc;
+    char error_msg[1024];
+
+    if (argc != 2)
+    {
+        Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+        return TCL_ERROR;
+    }
+
+    strcpy(dbName, argv[1]);
+    strcpy(dbLocalAlias, dbName);
+    strcpy(dbPath, "");
+    
+    /*strcpy(dbDescriptor.sqldbdid, SQLE_DBDESC_2);
+    dbDescriptor.sqldbccp = 0;
+    dbDescriptor.sqldbcss = SQL_CS_USER;
+    memcpy(dbDescriptor.sqldbudc, sqle_819_500, SQL_CS_SZ);
+    strcpy(dbDescriptor.sqldbcmt, "database for HammerDB");
+    dbDescriptor.sqldbsgp = 0;
+    dbDescriptor.sqldbnsg = 10;
+    dbDescriptor.sqltsext = -1;
+    dbDescriptor.sqlcatts = NULL;
+    dbDescriptor.sqlusrts = NULL;
+    dbDescriptor.sqltmpts = NULL;*/
+    
+    strcpy(territoryInfo.sqldbcodeset, "ISO8859-1");
+    strcpy(territoryInfo.sqldblocale, "C");
+
+    memset(&sqlca, 0, sizeof(sqlca));
+    sqlecrea(dbName,
+             dbLocalAlias,
+             dbPath,
+             NULL, /*&dbDescriptor*/
+             &territoryInfo,
+             '\0',
+             NULL,
+             &sqlca);
+    if (sqlca.sqlcode < 0) {
+        rc = sqlaintp(error_msg, sizeof(error_msg), 80, &sqlca);
+        if (rc > 0) {
+            Tcl_AppendResult (interp, error_msg, (char *)NULL);
+        }
+        return TCL_ERROR;
+    }
+
+    return TCL_OK;
+}
+
+/*
+   TCL syntax:
+
+   db2_drop_db dbname
+
+   Return execution results
+*/
+
+int Db2_drop_db (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    Db2Connection *conn;
+    char dbname[SQL_ALIAS_SZ + 1];
+    struct sqlca sqlca;
+    SQL_API_RC rc;
+    char error_msg[1024];
+
+    if (argc != 2)
+    {
+        Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+        return TCL_ERROR;
+    }
+
+    conn = (Db2Connection *) ckalloc (sizeof (Db2Connection));
+    memset (conn, '\0', (sizeof (Db2Connection)));
+
+    strncpy (conn->database, argv[1], SQL_MAX_DSN_LENGTH);
+
+    memset(&sqlca, 0, sizeof(sqlca));
+    sqledrpd((_SQLOLDCHAR *) & conn->database, &sqlca);
+    if (sqlca.sqlcode < 0) {
+        rc = sqlaintp(error_msg, sizeof(error_msg), 80, &sqlca);
+        if (rc > 0) {
+            Tcl_AppendResult (interp, error_msg, (char *)NULL);
+        }
+        return TCL_ERROR;
+    }
+
+    return TCL_OK;
+}
+
+/*
+   TCL syntax:
+
+   db2_force_off
+
+   Return execution results
+*/
+
+int Db2_force_off (ClientData cData, Tcl_Interp * interp, int argc, CONST84 char *argv[])
+{
+    Db2Connection *conn;
+    struct sqlca sqlca;
+    SQL_API_RC rc;
+    char error_msg[1024];
+
+    if (argc != 1)
+    {
+        Tcl_AppendResult (interp, "Wrong number of arguments", (char *)NULL);
+        return TCL_ERROR;
+    }
+
+    /* force off all the appl. connected to all databases */
+    memset(&sqlca, 0, sizeof(sqlca));
+    sqlefrce(SQL_ALL_USERS, NULL, SQL_ASYNCH, &sqlca);
+    if (sqlca.sqlcode < 0) {
+        rc = sqlaintp(error_msg, sizeof(error_msg), 80, &sqlca);
+        if (rc > 0) {
+            Tcl_AppendResult (interp, error_msg, (char *)NULL);
+        }
+        return TCL_ERROR;
+    }
+
+    return TCL_OK;
 }
 
 /*
