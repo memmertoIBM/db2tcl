@@ -88,7 +88,7 @@ Tcl_Interp * interp;
     Tcl_CreateObjCommand (interp, "db2_test", Db2_test,
                        (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_PkgProvide (interp, "db2tcl", "2.0");
+    Tcl_PkgProvide (interp, "db2tcl", "2.0.1");
 
     return TCL_OK;
 }

@@ -206,7 +206,7 @@ LTCOMPILE = $(LIBTOOL) --mode=compile $(CC) $(DEFS) $(DEFAULT_INCLUDES) \
 	$(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
 CCLD = $(CC)
 LINK = $(LIBTOOL) --mode=link $(CCLD) $(AM_CFLAGS) $(CFLAGS) \
-	$(AM_LDFLAGS) $(LDFLAGS) -o $@
+	$(AM_LDFLAGS) $(LDFLAGS) $(db2tclsh_LDFLAGS) -o $@
 DIST_SOURCES = $(libdb2tcl_la_SOURCES) $(db2tclsh_SOURCES) \
 	$(db2wish_SOURCES)
 HEADERS = $(noinst_HEADERS)
