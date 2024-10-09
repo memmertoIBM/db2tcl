@@ -423,8 +423,8 @@ SHELL=${CONFIG_SHELL-/bin/sh}
 PACKAGE_NAME='db2tcl'
 PACKAGE_LIB='libdb2tcl.so'
 PACKAGE_TARNAME='db2tcl'
-PACKAGE_VERSION='2.0.1'
-PACKAGE_STRING='db2tcl 2.0.1'
+PACKAGE_VERSION='2.0.1.1'
+PACKAGE_STRING='db2tcl 2.0.1.1'
 PACKAGE_BUGREPORT='sergeybe@users.sourceforge.net'
 
 ac_unique_file="config.h.in"
