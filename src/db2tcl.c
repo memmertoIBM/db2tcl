@@ -5,8 +5,8 @@
 #ifdef _WINDOWS
    #include <windows.h>
    #include <tk.h>
-   #define PACKAGE "db2tcl"
 #endif
+   #define PACKAGE "db2tcl"
    #define PACKAGE_VERSION "2.0.1.1"
 
 #ifdef _WINDOWS
@@ -88,7 +88,7 @@ Tcl_Interp * interp;
     Tcl_CreateObjCommand (interp, "db2_test", Db2_test,
                        (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_PkgProvide (interp, "db2tcl", "2.0.1.1");
+    Tcl_PkgProvide (interp, PACKAGE, PACKAGE_VERSION);
 
     return TCL_OK;
 }
