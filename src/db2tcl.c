@@ -6,8 +6,8 @@
    #include <windows.h>
    #include <tk.h>
 #endif
-   #define PACKAGE "db2tcl"
-   #define PACKAGE_VERSION "2.0.1.1"
+#define PACKAGE "db2tcl"
+#define PACKAGE_VERSION "2.0.1.1"
 
 #ifdef _WINDOWS
 __declspec( dllexport )
@@ -15,11 +15,11 @@ __declspec( dllexport )
 int Db2tcl_Init(interp)
 Tcl_Interp * interp;
 {
-	 if (Tcl_InitStubs(interp, "8.6-", 0) == NULL)
+  if (Tcl_InitStubs(interp, "8.6-", 0) == NULL)
     return TCL_ERROR;
   if (Tcl_PkgRequire(interp, "Tcl", "8.6-", 0) == NULL)
     return TCL_ERROR;
-  if (Tcl_PkgProvide(interp, "db2tcl" , PACKAGE_VERSION) != TCL_OK)
+  if (Tcl_PkgProvide(interp, PACKAGE, PACKAGE_VERSION) != TCL_OK)
     return TCL_ERROR;
 
     /* On Windows initialize default channels to prevent incorrect naming of channels */
@@ -87,8 +87,6 @@ Tcl_Interp * interp;
 
     Tcl_CreateObjCommand (interp, "db2_test", Db2_test,
                        (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_PkgProvide (interp, PACKAGE, PACKAGE_VERSION);
 
     return TCL_OK;
 }
