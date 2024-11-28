@@ -18,10 +18,6 @@
 #define MAX_COLUMNS    255
 #define MAX_ID_LENGTH  255
 
-#ifndef CONST84
-#define CONST84
-#endif
-
 typedef struct FieldBuffer { 
   /* description of the field */
   SQLSMALLINT dbtype;
@@ -64,119 +60,119 @@ extern int Db2_connect(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_disconnect(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_create_db(
 		ClientData cData,
 		Tcl_Interp *interp,
 		int argc,
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_drop_db(
 		ClientData cData,
 		Tcl_Interp *interp,
 		int argc,
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_force_off(
 		ClientData cData,
 		Tcl_Interp *interp,
 		int argc,
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_exec_direct(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_exec_prepared(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_select_direct(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_select_prepared(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_prepare(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_bind_param(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_bind_exec(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_finish(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_fetchrow(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_getnumrows(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_begin_transaction(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_commit_transaction(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_rollback_transaction(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_db2(
 		ClientData cData, 
 		Tcl_Interp *interp, 
 		int argc, 
-		CONST84 char *argv[]);
+		const char *argv[]);
 
 extern int Db2_test (ClientData clientData,
                      Tcl_Interp * interp,
                      int objc, 
-		     struct Tcl_Obj * CONST * objv);
+		     struct Tcl_Obj * const * objv);
 
 #endif	 /* DB2TCLCMDS_H */

@@ -1,7 +1,7 @@
 # Makefile.vc
 
-PGTCL_VERSION = 2.0.1
-DLL_VERSION = 201
+DB2TCL_VERSION = 2.0.1.1
+DLL_VERSION = 2011
 
 PROJECT = db2tcl$(DLL_VERSION)
 !include "rules.vc"
@@ -20,7 +20,7 @@ CP      = copy
 RM      = del
 
 PACKAGE_NAME	= db2tcl
-PACKAGE_VERSION	= 2.0.1
+PACKAGE_VERSION	= 2.0.1.1
 DLL = libdb2tcl.dll
 
 lflags = /NOLOGO /MACHINE:$(MACHINE) /LIBPATH:"$(TCL_LIBRARY)"
@@ -29,9 +29,9 @@ DLLENTRY = @12
 dlllflags = $(lflags) -entry:_DllMainCRTStartup -dll
 
 
-CLFLAGS = /c -Ob2 -favor:blend /MT /W3 /nologo /D_CRT_SECURE_NO_WARNINGS -DUSE_TCL_STUBS -DPACKAGE_NAME=\"db2tcl\" -DPACKAGE_VERSION=\"2.0.1\"
+CLFLAGS = /c -Ob2 -favor:blend /MT /W3 /nologo /D_CRT_SECURE_NO_WARNINGS -DUSE_TCL_STUBS -DPACKAGE_NAME=\"db2tcl\" -DPACKAGE_VERSION=\"2.0.1.1\"
 
-baselibs   =  "$(TCL_LIBRARY)/tcl86t.lib" "$(TCL_LIBRARY)/tclstub86.lib" "$(TK_LIBRARY)/tk86t.lib" "$(TK_LIBRARY)/tkstub86.lib" "$(LIBDIR)/db2cli.lib" "$(LIBDIR)/db2api.lib"
+baselibs   =  "$(TCL_LIBRARY)/tcl90.lib" "$(TCL_LIBRARY)/tclstub.lib" "$(TK_LIBRARY)/tcl9tk90.lib" "$(TK_LIBRARY)/tkstub.lib" "$(LIBDIR)/db2cli.lib" "$(LIBDIR)/db2api.lib"
 
 DIR_SRC = ..\src
 

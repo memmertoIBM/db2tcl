@@ -16,6 +16,10 @@
 #include "tk.h"
 #include "db2tcl.h"
 
+#if TK_MAJOR_VERSION >= 9
+int Tcl_AppInit(Tcl_Interp *);
+#endif
+
 /*
  * The following variable is a special hack that is needed in order for
  * Sun shared libraries to be used for Tcl.
